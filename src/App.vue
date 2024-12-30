@@ -1,30 +1,38 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view />
+  <div id="app">
+    <NavBar />
+    <router-view></router-view>
+  </div>
 </template>
 
+<script>
+import NavBar from '@/components/NavBar.vue'
+
+export default {
+  name: 'App',
+  components: {
+    NavBar
+  },
+  created() {
+    this.$root.$on('login', () => {
+      // You can add any app-wide logic here that should happen on login
+    });
+    this.$root.$on('logout', () => {
+      // You can add any app-wide logic here that should happen on logout
+    });
+  }
+}
+</script>
+
 <style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-}
-
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
 }
 </style>
