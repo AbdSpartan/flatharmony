@@ -31,18 +31,16 @@ const Message = sequelize.define('Message', {
     type: DataTypes.TEXT,
     allowNull: false
   },
-  sender: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  recipient: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  timestamp: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+  isAnonymous: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   }
 });
+
+// Define associations
+User.hasMany(Message, { as: 'SentMessages', foreignKey: 'senderId' });
+User.hasMany(Message, { as: 'ReceivedMessages', foreignKey: 'recipientId' });
+Message.belongsTo(User, { as: 'Sender', foreignKey: 'senderId' });
+Message.belongsTo(User, { as: 'Recipient', foreignKey: 'recipientId' });
 
 module.exports = { sequelize, User, Message };

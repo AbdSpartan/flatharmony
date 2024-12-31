@@ -19,21 +19,26 @@ export default {
   },
   methods: {
     async login() {
-      const res = await fetch("http://localhost:3000/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: this.username, password: this.password }),
-      });
+      try {
+        const res = await fetch("http://localhost:3000/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: this.username, password: this.password }),
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (res.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("firstName", data.firstName);
-        this.$root.$emit('login', data.firstName);
-        this.$router.push("/dashboard");
-      } else {
-        alert(data.error || "Login failed.");
+        if (res.ok) {
+          localStorage.setItem("token", data.token);
+          this.$router.push("/dashboard");
+          // Emit an event to notify App.vue that the user has logged in
+          this.$root.$emit('login');
+        } else {
+          alert(data.error || "Login failed.");
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('An error occurred during login.');
       }
     },
   },

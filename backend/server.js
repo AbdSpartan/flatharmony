@@ -29,7 +29,6 @@ app.post("/auth/register", async (req, res) => {
 });
 
 // Login route
-
 app.post("/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -52,10 +51,31 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
-app.post("/messages", async (req, res) => {
+// Middleware to authenticate token
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token == null) return res.sendStatus(401);
+
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+};
+
+// Send a message
+app.post("/messages", authenticateToken, async (req, res) => {
   try {
-    const { content, sender, recipient } = req.body;
-    const message = await Message.create({ content, sender, recipient });
+    const { content, recipient } = req.body;
+    const sender = req.user.id;
+    const message = await Message.create({ 
+      content, 
+      senderId: sender, 
+      recipientId: recipient,
+      isAnonymous: true // You can make this configurable if needed
+    });
     res.status(201).json(message);
   } catch (error) {
     console.error("Error sending message:", error);
@@ -64,14 +84,29 @@ app.post("/messages", async (req, res) => {
 });
 
 // Get messages for a user
-app.get("/messages/:username", async (req, res) => {
+app.get("/messages", authenticateToken, async (req, res) => {
   try {
-    const { username } = req.params;
+    const userId = req.user.id;
     const messages = await Message.findAll({
-      where: { recipient: username },
-      order: [['timestamp', 'DESC']]
+      where: { recipientId: userId },
+      order: [['createdAt', 'DESC']],
+      include: [
+        {
+          model: User,
+          as: 'Sender',
+          attributes: ['username'],
+        },
+      ],
     });
-    res.json(messages);
+
+    const formattedMessages = messages.map(message => ({
+      id: message.id,
+      content: message.content,
+      sender: message.isAnonymous ? 'Anonymous' : message.Sender.username,
+      createdAt: message.createdAt,
+    }));
+
+    res.json(formattedMessages);
   } catch (error) {
     console.error("Error fetching messages:", error);
     res.status(500).json({ error: "Error fetching messages", details: error.message });

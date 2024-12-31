@@ -1,36 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomePage from '../views/HomePage.vue'
-import LoginPage from '../views/LoginPage.vue'
-import RegisterPage from '../views/RegisterPage.vue'
-import DashBoard from '../views/DashBoard.vue'
-import AnonymousMessaging from '../views/AnonymousMessaging.vue'
+import HomePage from '@/views/HomePage.vue'
+import LoginPage from '@/views/LoginPage.vue'
+import RegisterPage from '@/views/RegisterPage.vue'
+import DashBoard from '@/views/DashBoard.vue'
+import InBox from '@/views/InBox.vue'
+import AnonymousMessaging from '@/views/AnonymousMessaging.vue'
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: HomePage
+  { path: '/', name: 'HomePage', component: HomePage },
+  { path: '/login', name: 'LoginPage', component: LoginPage },
+  { path: '/register', name: 'RegisterPage', component: RegisterPage },
+  { 
+    path: '/dashboard', 
+    name: 'DashBoard', 
+    component: DashBoard,
+    children: [
+      { path: 'inbox', name: 'InBox', component: InBox },
+      { path: 'anonymous-messaging', name: 'AnonymousMessaging', component: AnonymousMessaging }
+    ]
   },
-  {
-    path: '/login',
-    name: 'Login',
-    component: LoginPage
-  },
-  {
-    path: '/register',
-    name: 'Register',
-    component: RegisterPage
-  },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: DashBoard
-  },
-  {
-    path: '/anonymous-messaging',
-    name: 'AnonymousMessaging',
-    component: AnonymousMessaging
-  }
 ]
 
 const router = createRouter({

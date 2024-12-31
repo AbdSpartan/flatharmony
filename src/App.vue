@@ -1,38 +1,41 @@
 <template>
   <div id="app">
-    <NavBar />
-    <router-view></router-view>
+    <NavBar v-if="isLoggedIn" @logout="logout" />
+    <router-view />
   </div>
 </template>
 
 <script>
-import NavBar from '@/components/NavBar.vue'
+import NavBar from "./components/NavBar.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    NavBar
+    NavBar,
+  },
+  data() {
+    return {
+      isLoggedIn: false,
+    };
   },
   created() {
-    this.$root.$on('login', () => {
-      // You can add any app-wide logic here that should happen on login
-    });
-    this.$root.$on('logout', () => {
-      // You can add any app-wide logic here that should happen on logout
-    });
-  }
-}
+    this.checkLoginStatus();
+  },
+  methods: {
+    checkLoginStatus() {
+      const token = localStorage.getItem('token');
+      this.isLoggedIn = !!token;
+    },
+    logout() {
+      localStorage.removeItem('token');
+      this.isLoggedIn = false;
+      this.$router.push('/');
+    },
+  },
+  watch: {
+    $route() {
+      this.checkLoginStatus();
+    },
+  },
+};
 </script>
-
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-}
-
-#app {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
-</style>
